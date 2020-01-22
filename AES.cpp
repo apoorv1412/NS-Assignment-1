@@ -25,7 +25,74 @@ string intToBinary(int n) {
 	return num;
 }
 
+int GTable[16][16];
 
+int[][] substituteBytes(int[][] intermediate) {
+	int A = (1 << 4);
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			int num = intermediate[i][j];
+			int x = num%A;
+			int y = num/A;
+			intermediate[i][j] = GTable[x][y];
+		}
+	}
+	return intermediate;
+}
+
+int[][] shiftRows(int intermediate[][]) {
+	int modified[4][4] = intermediate;
+	for (int i = 0; i < 4; ++i) {
+		// modified[i][j] = intermediate[i][(j+i)%4];
+		if (i == 0) {
+			for (int j = 0; j < 4; ++j) 
+				modified[i][j] = intermediate[i][(j+0)%4];
+		}
+		else if (i == 1) {
+			for (int j = 0; j < 4; ++j) 
+				modified[i][j] = intermediate[i][(j+1)%4];
+		}
+		else if (i == 2) {
+			for (int j = 0; j < 4; ++j)
+				modified[i][j] = intermediate[i][(j+2)%4];
+		}
+		else {
+			for (int j = 0; j < 4; ++j) 
+				modified[i][j] = intermediate[i][(j+3)%4]
+		}
+	}
+
+	return modified;
+}
+
+int[][] mixColumns(int intermediate[][]) {
+	int MCMatrix[][] = {{2,3,1,1},{1,2,3,1},{1,1,2,3},{3,1,1,2}};
+	for (int j = 0; j < 4; ++j) {
+		int column[4];
+		for (int i = 0; i < 4; ++i)
+			column[i] = intermediate[i][j];
+		int multiplied[] = matrixMultiplication(MCMatrix ,column);
+		for (int i = 0; i < 4; ++i)
+			intermediate[i][j] = multiplied[j]; 
+	}
+	return intermediate;
+}
+
+int[][] addRoundKey(int intermediate[][], int key[][]) {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) 
+			intermediate[i][j] ^= key[i][j];
+	}
+	return intermediate;
+}
+
+int[][] SBox(int intermediate[][], int round) {
+	if (round >= 1) intermediate = substituteBytes(intermediate);
+	if (round >= 1) intermediate = shiftRows(intermediate);
+	if (round >= 1 and round <= 9) intermediate = mixColumns(intermediate);
+	intermediate = addRoundKey(intermediate);
+	return intermediate;
+}
 
 int main() {
 	freopen("plaintext.txt","r",stdin);
@@ -38,4 +105,19 @@ int main() {
 			ptr += 8;
 		}
 	}
+	
+	int num_rounds = 10;
+	int intermediate[4][4];
+
+	for (int round = 0; round <= num_rounds; ++round) {
+		intermediate = SBox(intermediate,round);
+	} 
+
+	string cipherText = "";
+	for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 4; ++i)
+			cipherText += intToBinary(intermediate[i][j]);
+	}
+
+	cout << cipherText << endl;
 }
