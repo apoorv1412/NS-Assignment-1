@@ -27,7 +27,7 @@ string intToBinary(int n) {
 
 int GTable[16][16];
 
-int[][] substituteBytes(int[][] intermediate) {
+void substituteBytes(int intermediate[4][4]) {
 	int A = (1 << 4);
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -37,11 +37,10 @@ int[][] substituteBytes(int[][] intermediate) {
 			intermediate[i][j] = GTable[x][y];
 		}
 	}
-	return intermediate;
 }
 
-int[][] shiftRows(int intermediate[][]) {
-	int modified[4][4] = intermediate;
+void shiftRows(int intermediate[4][4]) {
+	int modified[4][4];
 	for (int i = 0; i < 4; ++i) {
 		// modified[i][j] = intermediate[i][(j+i)%4];
 		if (i == 0) {
@@ -58,15 +57,18 @@ int[][] shiftRows(int intermediate[][]) {
 		}
 		else {
 			for (int j = 0; j < 4; ++j) 
-				modified[i][j] = intermediate[i][(j+3)%4]
+				modified[i][j] = intermediate[i][(j+3)%4];
 		}
 	}
 
-	return modified;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j)
+			intermediate[i][j] = modified[i][j];
+	}
 }
 
-int[][] mixColumns(int intermediate[][]) {
-	int MCMatrix[][] = {{2,3,1,1},{1,2,3,1},{1,1,2,3},{3,1,1,2}};
+void mixColumns(int intermediate[4][4]) {
+	int MCMatrix[4][4] = {{2,3,1,1},{1,2,3,1},{1,1,2,3},{3,1,1,2}};
 	for (int j = 0; j < 4; ++j) {
 		int column[4];
 		for (int i = 0; i < 4; ++i)
@@ -75,23 +77,21 @@ int[][] mixColumns(int intermediate[][]) {
 		for (int i = 0; i < 4; ++i)
 			intermediate[i][j] = multiplied[j]; 
 	}
-	return intermediate;
 }
 
-int[][] addRoundKey(int intermediate[][], int key[][]) {
+void addRoundKey(int intermediate[4][4], int key[4][4]) {
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) 
 			intermediate[i][j] ^= key[i][j];
 	}
-	return intermediate;
 }
 
-int[][] SBox(int intermediate[][], int round) {
-	if (round >= 1) intermediate = substituteBytes(intermediate);
-	if (round >= 1) intermediate = shiftRows(intermediate);
-	if (round >= 1 and round <= 9) intermediate = mixColumns(intermediate);
-	intermediate = addRoundKey(intermediate);
-	return intermediate;
+void SBox(int intermediate[4][4], int round) {
+	if (round >= 1) substituteBytes(intermediate);
+	if (round >= 1) shiftRows(intermediate);
+	if (round >= 1 and round <= 9) mixColumns(intermediate);
+	int key[4][4];
+	addRoundKey(intermediate,key);
 }
 
 int main() {
@@ -109,9 +109,8 @@ int main() {
 	int num_rounds = 10;
 	int intermediate[4][4];
 
-	for (int round = 0; round <= num_rounds; ++round) {
-		intermediate = SBox(intermediate,round);
-	} 
+	for (int round = 0; round <= num_rounds; ++round) 
+		SBox(intermediate,round);
 
 	string cipherText = "";
 	for (int j = 0; j < 4; ++j) {
