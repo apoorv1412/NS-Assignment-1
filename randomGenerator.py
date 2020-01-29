@@ -1,10 +1,15 @@
-import sys
-sys.stdout = open('plaintext.txt', 'w')
+import random 
 
-import random
-s = ''
-size = 128
-for i in range(size):
-	bit = random.randint(0,1)
-	s += str(bit)
-print s
+plaintext = ''
+key = ''
+
+for i in range(128):
+	a = random.randint(0,1)
+	plaintext += str(a)
+
+for i in range(128):
+	a = random.randint(0,1)
+	key += str(a)
+
+print plaintext 
+print key

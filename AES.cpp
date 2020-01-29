@@ -197,7 +197,7 @@ int Key[4][4], Plaintext[4][4], gArray[4], listOfKeys[11][4][4];
 
 void rotateLeft() {
 	for (int i = 0; i < 4; ++i)
-		gArray[i] = Key[(i+3)%4][3];
+		gArray[i] = Key[(i+1)%4][3];
 }
 
 void substitute() {
@@ -277,7 +277,7 @@ void Inverse_Mix_Columns(){
 		temp[3] = mul14[Plaintext[3][j]] ^ mul11[Plaintext[0][j]] ^ mul13[Plaintext[1][j]] ^ mul9[Plaintext[2][j]];
 
 		for(int i = 0; i < 4; ++i){
-			Plaintext[i][j] = temp[j];
+			Plaintext[i][j] = temp[i];
 		}
 	}
 
@@ -292,7 +292,7 @@ void Mix_Columns(){
 		temp[3] = mul3[Plaintext[0][j]] ^ Plaintext[1][j] ^ Plaintext[2][j] ^ mul2[Plaintext[3][j]];
 		
 		for(int i = 0; i < 4; ++i){
-			Plaintext[i][j] = temp[j];
+			Plaintext[i][j] = temp[i];
 		}
 	}
 }
@@ -324,8 +324,8 @@ string decryption(string cipher) {
 	for (int round = 10; round >= 0; --round) {
 		addRoundKey(round);
 		if (round >= 1 and round <= 9) Inverse_Mix_Columns();
-		if (round >= 1) shiftRows(1);
-		if (round >= 1) substituteBytes(1);
+		if (round >= 1) shiftRows(0);
+		if (round >= 1) substituteBytes(0);
 	}
 	string original = "";
 	for (int j = 0; j < 4; ++j) {
@@ -347,16 +347,14 @@ int main() {
 		for (int i = 0; i < 4; ++i) {
 			for (int j = 0; j < 4; ++j) {
 				listOfKeys[round][i][j] = Key[i][j];
-				// cout << Key[i][j] << ' ';
 			}
-			// cout << endl;
 		}
-		// cout << endl << endl;
 	}
 
 	string cipher = encryption(plaintext);
-	// cout << cipher.size() << endl;
-	string original = decryption(cipher);	
-	cout << cipher << endl;
+	string original = decryption(cipher);
+
+	cout << plaintext << endl;
+ 	cout << cipher << endl;
 	cout << original << endl;
 }
