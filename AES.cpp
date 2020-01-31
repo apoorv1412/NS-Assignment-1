@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -172,7 +173,8 @@ unsigned char mul14[256] =
 	0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d
 };
 
-int binaryToInt(string s) {
+int binaryToInt(string s) 
+{
 	int ans = 0;
 	reverse(s.begin(), s.end());
 	for (int i = 0; i < s.size(); ++i) 
@@ -180,9 +182,11 @@ int binaryToInt(string s) {
 	return ans;
 }
 
-string intToBinary(int n) {
+string intToBinary(int n) 
+{
 	string num = "";
-	while (n) {
+	while (n) 
+	{
 		if (n&1) num += '1';
 		else num += '0';
 		n /= 2;
@@ -195,37 +199,47 @@ string intToBinary(int n) {
 
 int Key[4][4], Plaintext[4][4], gArray[4], listOfKeys[11][4][4];
 
-void rotateLeft() {
+void rotateLeft() 
+{
 	for (int i = 0; i < 4; ++i)
 		gArray[i] = Key[(i+1)%4][3];
 }
 
-void substitute() {
-	for (int i = 0; i < 4; ++i) {
+void substitute() 
+{
+	for (int i = 0; i < 4; ++i) 
+	{
 		int x = gArray[i]%(1 << 4), y = gArray[i]/(1 << 4);
 		gArray[i] = (int)SBox[y][x];
 	}
 }
 
-void g(int round) {
+void g(int round) 
+{
 	rotateLeft();
 	substitute();
 	gArray[0] ^= (int) RC[round];
 }
 
-void nextKey(int round) {
+void nextKey(int round) 
+{
 	g(round);	
-	for (int j = 0; j < 4; ++j) {
-		for (int i = 0; i < 4; ++i) {
+	for (int j = 0; j < 4; ++j) 
+	{
+		for (int i = 0; i < 4; ++i) 
+		{
 			if (j == 0) Key[i][j] ^= gArray[i];
 			else Key[i][j] ^= Key[i][j-1];
 		}
 	}
 }
 
-void substituteBytes(bool encryption) {
-	for (int j = 0; j < 4; ++j) {
-		for (int i = 0; i < 4; ++i) {
+void substituteBytes(bool encryption) 
+{
+	for (int j = 0; j < 4; ++j) 
+	{
+		for (int i = 0; i < 4; ++i) 
+		{
 			
 			int x = Plaintext[i][j]%(1 << 4), y = Plaintext[i][j]/(1 << 4);
 			if (encryption) Plaintext[i][j] = (int)SBox[y][x];
@@ -234,122 +248,173 @@ void substituteBytes(bool encryption) {
 	}
 }
 
-void shiftRows(bool encryption) {
+void shiftRows(bool encryption) 
+{
 	int temp[4][4]; 
 	
-	if (encryption) {
-		for (int i = 1; i < 4; ++i) {
+	if (encryption) 
+	{
+		for (int i = 1; i < 4; ++i) 
+		{
 			for (int j = 0; j < 4; ++j) 
 				temp[i][j] = Plaintext[i][(j+i)%4];
 		}
 	}
 
-	else {
-		for (int i = 1; i < 4; ++i) {
+	else 
+	{
+		for (int i = 1; i < 4; ++i) 
+		{
+
 			for (int j = 0; j < 4; ++j) 
 				temp[i][j] = Plaintext[i][(j-i+4)%4];
 		}
 	}
 
-	for (int i = 1; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
+	for (int i = 1; i < 4; ++i) 
+	{
+		for (int j = 0; j < 4; ++j) 
 			Plaintext[i][j] = temp[i][j];
-		}
 	}
 
 }
 
-void addRoundKey(int round) {
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) { 
+void addRoundKey(int round) 
+{
+	for (int i = 0; i < 4; ++i) 
+	{
+		for (int j = 0; j < 4; ++j) 
+		{ 
 			Plaintext[i][j] ^= listOfKeys[round][i][j];
 		}
 	}
 }
 
 
-void Inverse_Mix_Columns(){
-	for (int j = 0; j < 4; ++j) {
+void Inverse_Mix_Columns()
+{
+	for (int j = 0; j < 4; ++j) 
+	{
 		int temp[4];
 		temp[0] = mul14[Plaintext[0][j]] ^ mul11[Plaintext[1][j]] ^ mul13[Plaintext[2][j]] ^ mul9[Plaintext[3][j]];
 		temp[1] = mul14[Plaintext[1][j]] ^ mul11[Plaintext[2][j]] ^ mul13[Plaintext[3][j]] ^ mul9[Plaintext[0][j]];
 		temp[2] = mul14[Plaintext[2][j]] ^ mul11[Plaintext[3][j]] ^ mul13[Plaintext[0][j]] ^ mul9[Plaintext[1][j]];
 		temp[3] = mul14[Plaintext[3][j]] ^ mul11[Plaintext[0][j]] ^ mul13[Plaintext[1][j]] ^ mul9[Plaintext[2][j]];
 
-		for(int i = 0; i < 4; ++i){
+		for(int i = 0; i < 4; ++i)
+		{
 			Plaintext[i][j] = temp[i];
 		}
 	}
 
 }
 
-void Mix_Columns(){
-	for (int j = 0; j < 4; ++j) {
+void Mix_Columns()
+{
+	for (int j = 0; j < 4; ++j) 
+	{
 		int temp[4];
 		temp[0] = mul2[Plaintext[0][j]] ^ mul3[Plaintext[1][j]] ^ Plaintext[2][j] ^ Plaintext[3][j];
-		temp[1] = Plaintext[0][j] ^ mul2[Plaintext[1][j]] ^ mul3[Plaintext[2][j]] ^ Plaintext[3][j];
-		temp[2] = Plaintext[0][j] ^ Plaintext[1][j] ^ mul2[Plaintext[2][j]] ^ mul3[Plaintext[3][j]];
-		temp[3] = mul3[Plaintext[0][j]] ^ Plaintext[1][j] ^ Plaintext[2][j] ^ mul2[Plaintext[3][j]];
-		
-		for(int i = 0; i < 4; ++i){
+		temp[1] = mul2[Plaintext[1][j]] ^ mul3[Plaintext[2][j]] ^ Plaintext[3][j] ^ Plaintext[0][j];
+		temp[2] = mul2[Plaintext[2][j]] ^ mul3[Plaintext[3][j]] ^ Plaintext[0][j] ^ Plaintext[1][j];
+		temp[3] = mul2[Plaintext[3][j]] ^ mul3[Plaintext[0][j]] ^ Plaintext[1][j] ^ Plaintext[2][j];
+
+		for(int i = 0; i < 4; ++i)
 			Plaintext[i][j] = temp[i];
-		}
 	}
 }
 
-string encryption(string plaintext) {
-	for (int j = 0; j < 4; ++j) {
+string encryption(string plaintext) 
+{
+
+	for (int j = 0; j < 4; ++j) 
+	{
 		for (int i = 0; i < 4; ++i) 
 			Plaintext[i][j] = binaryToInt(plaintext.substr((j*4+i)*8,8));
 	}
-	for (int round = 0; round <= 10; ++round) {
+	for (int round = 0; round <= 10; ++round) 
+	{
+		cout << "Key in encryption round " << to_string(round) << ": ";
+		for (int j = 0; j < 4; ++j) 
+		{
+			for (int i = 0; i < 4; ++i) 
+				cout << hex << listOfKeys[round][i][j];
+			cout << ' ';
+		}
+		cout << endl;
 		if (round >= 1) substituteBytes(1);
 		if (round >= 1) shiftRows(1);
 		if (round >= 1 and round <= 9) Mix_Columns();
 		addRoundKey(round);
+		cout << "Cipher after round " << to_string(round) << ": ";
+		for (int j = 0; j < 4; ++j) 
+		{
+			for (int i = 0; i < 4; ++i) 
+				cout << hex << Plaintext[i][j];
+			cout << ' ';
+		}
+		cout << endl << endl;
 	}
 	string cipher = "";
-	for (int j = 0; j < 4; ++j) {
+	for (int j = 0; j < 4; ++j) 
+	{
 		for (int i = 0; i < 4; ++i) 
 			cipher += intToBinary(Plaintext[i][j]);
 	}
 	return cipher;
 }
 
-string decryption(string cipher) {
-	for (int j = 0; j < 4; ++j) {
+string decryption(string cipher) 
+{
+	for (int j = 0; j < 4; ++j) 
+	{
 		for (int i = 0; i < 4; ++i) 
 			Plaintext[i][j] = binaryToInt(cipher.substr((j*4+i)*8,8));
 	}
-	for (int round = 10; round >= 0; --round) {
+	for (int round = 10; round >= 0; --round) 
+	{
 		addRoundKey(round);
 		if (round >= 1 and round <= 9) Inverse_Mix_Columns();
 		if (round >= 1) shiftRows(0);
 		if (round >= 1) substituteBytes(0);
 	}
 	string original = "";
-	for (int j = 0; j < 4; ++j) {
+	for (int j = 0; j < 4; ++j) 
+	{
 		for (int i = 0; i < 4; ++i) 
 			original += intToBinary(Plaintext[i][j]);
 	}
 	return original;
 }
 
-int main() {
+int main() 
+{
 	string key; cin >> key;
 	string plaintext; cin >> plaintext;
-	for (int j = 0; j < 4; ++j) {
+	for (int j = 0; j < 4; ++j) 
+	{
 		for (int i = 0; i < 4; ++i) 
 			Key[i][j] = binaryToInt(key.substr((j*4+i)*8,8));
 	}
-	for (int round = 0; round <= 10; ++round) {
+	cout << endl << endl << "Key: ";
+	for (int round = 0; round <= 10; ++round) 
+	{
 		if (round != 0) nextKey(round);
-		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 4; ++i) 
+		{
+			for (int j = 0; j < 4; ++j) 
 				listOfKeys[round][i][j] = Key[i][j];
-			}
 		}
 	}
+
+	for (int j = 0; j < 4; ++j) 
+	{
+		for (int i = 0; i < 4; ++i) 
+			cout << hex << listOfKeys[0][i][j];
+		cout << ' ';
+	}
+	cout << endl << endl << endl;
+
 
 	string cipher = encryption(plaintext);
 	string original = decryption(cipher);
