@@ -332,6 +332,16 @@ string encryption(string plaintext)
 		for (int i = 0; i < 4; ++i) 
 			Plaintext[i][j] = binaryToInt(plaintext.substr((j*4+i)*8,8));
 	}
+
+	cout << "Original Plaintext: ";
+	for (int j = 0; j < 4; ++j) 
+	{
+		for (int i = 0; i < 4; ++i) 
+			cout << hex << Plaintext[i][j];
+		cout << ' ';
+	}
+	cout << endl << endl << endl;
+
 	for (int round = 0; round <= 10; ++round) 
 	{
 		cout << "Key in encryption round " << to_string(round) << ": ";
@@ -371,12 +381,31 @@ string decryption(string cipher)
 		for (int i = 0; i < 4; ++i) 
 			Plaintext[i][j] = binaryToInt(cipher.substr((j*4+i)*8,8));
 	}
+
+	cout << endl << endl << endl;
+
 	for (int round = 10; round >= 0; --round) 
 	{
+		cout << "Key in decryption round " << to_string(10-round) << ": ";
+		for (int j = 0; j < 4; ++j) 
+		{
+			for (int i = 0; i < 4; ++i) 
+				cout << hex << listOfKeys[round][i][j];
+			cout << ' ';
+		}
+		cout << endl;
 		addRoundKey(round);
 		if (round >= 1 and round <= 9) Inverse_Mix_Columns();
 		if (round >= 1) shiftRows(0);
 		if (round >= 1) substituteBytes(0);
+		cout << "Decrypted text after round " << to_string(10-round) << ": ";
+		for (int j = 0; j < 4; ++j) 
+		{
+			for (int i = 0; i < 4; ++i) 
+				cout << hex << Plaintext[i][j];
+			cout << ' ';
+		}
+		cout << endl << endl;
 	}
 	string original = "";
 	for (int j = 0; j < 4; ++j) 
@@ -413,13 +442,9 @@ int main()
 			cout << hex << listOfKeys[0][i][j];
 		cout << ' ';
 	}
-	cout << endl << endl << endl;
+	cout << endl;
 
 
 	string cipher = encryption(plaintext);
 	string original = decryption(cipher);
-
-	cout << plaintext << endl;
- 	cout << cipher << endl;
-	cout << original << endl;
 }
